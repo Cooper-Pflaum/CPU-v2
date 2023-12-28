@@ -1,0 +1,104 @@
+=== Instructions ===
+
+
+NOP         0000 0000 | 0x00        | no operation
+AIN <addr>  0000 0001 | 0x01 <addr> | load data from <addr> to reg A
+BIN <addr>  0000 0010 | 0x02 <addr> | load data from <addr> to reg B
+CIN <addr>  0000 0011 | 0x03 <addr> | load data from <addr> to reg C
+LDIA <val>  0000 0100 | 0x04 <val>  | immediately load <val> into reg A
+LDIB <val>  0000 0101 | 0x05 <val>  | immediately load <val> into reg B
+RDEXP       0000 0110 | 0x06        | load value stored on the expansion port into reg A
+WREXP       0000 0111 | 0x07        | copy reg A into the expansion port
+STA <addr>  0000 1000 | 0x08 <addr> | store value of reg A into <addr> of memory
+STC <addr>  0000 1001 | 0x09 <addr> | store value of reg C into <addr> of memory
+ADD         0000 1010 | 0x0A        | add reg B to   reg A and set reg A = to sum
+SUB         0000 1011 | 0x0B        | sub reg B from reg A and set reg A = to difference
+MULT        0000 1100 | 0x0C        | mult reg B to  reg A and set reg A = to product
+DIV         0000 1101 | 0x0D        | div reb B from reg A and set reg A = to remainder
+JMP  <val>  0000 1110 | 0x0E <val>  | change program counter to <val> (changes what instruction is being pointed to in RAM)
+JMPZ <val>  0000 1111 | 0x0F <val>  | jump to <val> if the zero bit is set in flags reg
+JMPC <val>  0001 0000 | 0x10 <val>  | jump to <val> if the carry bit is set in flags reg
+LDAIN       0001 0001 | 0x11        | load reg A as memory address, then copy value from memory into reg A
+STAOUT      0001 0010 | 0x12        | load reg A as memory address, then store reg B value into RAM
+SWP         0001 0011 | 0x13        | swap reg A and reg B (this overwrites reg C)
+SWPC        0001 0100 | 0x14        | swap reg A and reg C (this overwrites reg B)
+HLT         0001 0101 | 0x15        | stop the clock
+WRDSP       0001 0110 | 0x16        | copy reg A into the display register
+WRX         0001 0111 | 0x17        | copy reg A into reg X
+WRY         0001 1000 | 0x18        | copy reg A into reg Y
+
+* <addr> and <val> are both 16-bit numbers (0x1234) *
+
+
+=== Micro Instructions ===
+
+Read Microinstructions:
+0000 0000 0000 1111 
+---------------------------------------------------------------------------------
+NO | 0000 | 0x0 | no operation
+RA | 0001 | 0x1 | read from reg A to bus
+RB | 0010 | 0x2 | read from reg B to bus
+RC | 0011 | 0x3 | read from reg C to bus
+RE | 0100 | 0x4 | read from expansion port to bus
+RM | 0101 | 0x5 | read from RAM to bus at the address in MAR
+IR | 0110 | 0x6 | read from lowest 12 bits of IR to bus
+CR | 0111 | 0x7 | read from counter to bus
+EO | 1000 | 0x8 | read from ALU to bus
+RF | 1001 | 0x9 | read from ALU to flags reg
+
+
+Write Microinstructions:
+0000 0000 1111 0000 
+---------------------------------------------------------------------------------
+NO | 0000 | 0x0 | no operation
+WA | 0001 | 0x1 | write from bus to reg A
+WB | 0010 | 0x2 | write from bus to reg B
+WC | 0011 | 0x3 | write from bus to reg C
+WE | 0100 | 0x4 | write from bus to expansion port
+WM | 0101 | 0x5 | write from bus to RAM at the address in MAR
+WI | 0110 | 0x6 | write from bus to IR
+WR | 0111 | 0x7 | write from bus to MAR
+J  | 1000 | 0x8 | write from bus to counter current value
+WD | 1001 | 0x9 | write from bus to display register
+WX | 1010 | 0xA | write from bus to reg X
+WY | 1011 | 0xB | write from bus to reg Y
+
+ALU Micro Instructions
+0000 0111 0000 0000 
+---------------------------------------------------------------------------------
+NO | 0000 | 0x0 | no operation
+AD | 0001 | 0x1 | enable addition in ALU
+SU | 0010 | 0x2 | enable subtraction in ALU
+MU | 0011 | 0x3 | enable multiplication in ALU
+DI | 0100 | 0x4 | enable division in ALU
+AN | 0101 | 0x5 | enable AND in ALU
+RO | 0110 | 0x6 | enable OR in ALU
+NT | 0111 | 0x7 | enable NOT in ALU (only reg A)
+
+
+Uncategorized Microinstructions:
+1111 1000 0000 0000
+---------------------------------------------------------------------------------
+CF | 1000 0 | 0x80 | clear flags reg
+ST | 0100 0 | 0x40 | stop the clock
+EI | 0010 0 | 0x20 | end instruction, resets step counter to move to next instruction
+CE | 0000 1 | 0x08 | enable incrementing of the program counter
+CE | 0001 0 | 0x08 | enable incrementing of the program counter
+CE | 0001 1 | 0x08 | enable incrementing of the program counter
+
+
+Flags Microinstructions:
+1100 0000 0000 0000
+---------------------------------------------------------------------------------
+
+
+
+
+------------
+
+Shortcuts:
+
+0x0077 -> read from program counter into mar
+0x0865 -> increment the program counter and read from ram (at MAR) to IR
+0x2000 -> end instruction
+0x6000 -> end instruction and reset flags register
